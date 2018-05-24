@@ -27,14 +27,22 @@ const star = (x, y) => {
         update: function update() {
             element.style.transform = `rotate(${rotation}deg)`
             rotation += 5
+        },
+        select: function select() {
+            element.src = 'selectedstar.png'
+        },
+        deselect: function deselect() {
+            element.src = 'star.png'
         }
     }
 }
 
-var myStar = star(500, 500)
-myStar.init()
-var myOtherStar = star(200, 200)
-myOtherStar.init()
+const player = (function() {
+    
+    return {
+
+    }
+})()
 
 const gameManager = (function() {
     const gameDiv = document.querySelector('.game')
@@ -77,6 +85,11 @@ const gameManager = (function() {
 }())
 
 setInterval(starManager.update, 1000 / 60)
+
+var myStar = star(500, 500)
+myStar.init()
+var myOtherStar = star(200, 200)
+myOtherStar.init()
 
 //Need a menu
 
