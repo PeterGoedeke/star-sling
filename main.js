@@ -23,10 +23,6 @@ const starManager = (function() {
             stars.push(star(200, 200))
             stars[1].connected = true
             stars.forEach((star) => star.init())
-            setTimeout(() => {
-                stars[0].x = 100
-                stars[0].y = 100
-            }, 1000)
         },
         registerStar: function registerStar(star) {
             stars.push(star)
@@ -47,7 +43,7 @@ const star = (x, y) => {
     element.className = 'star'
     element.style.top = y + "px"
     element.style.left = x + "px"
-    let [width, height] = [25, 25]
+    let [width, height] = [50, 50]
     let rotation = 0
     let connected = false
     return {
@@ -70,17 +66,48 @@ const star = (x, y) => {
             y = yNew
             element.style.top = y + "px"
             element.style.left = x + "px"
-            console.log('ayy lmao ')
         }
     }
 }
 
 const player = (function() {
+    let element = document.createElement('img')
+    element.src = 'player.png'
+    element.className = 'player'
     let [x, y] = [100, 100]
-    let [width, height] = [25, 25]
+    let [width, height] = [5, 75]
+    element.style.width = width + "px"
+    element.style.height = height + "px"
+    element.style.top = y + "px"
+    element.style.left = x + "px"
+    let rotatingClockwise = true
+    let sizeChange = 0
+    function changeSizeOn(event) {
+        if(event.which == 38) {
+            sizeChange = 1
+        }
+        if(event.which == 40) {
+            sizeChange = -1
+        }
+    }
+    function changeSizeOff() {
+        if(event.which == 38 && sizeChange != -1) {
+            sizeChange = 0
+        }
+        if(event.which == 40 && sizeChange != 1) {
+            sizeChange = 0
+        }
+    }
     return {
         width, height,
+        init: function init() {
+            document.querySelector('.game').appendChild(element)
+            document.addEventListener("keydown", changeSizeOn);
+            document.addEventListener("keyup", changeSizeOff);
+        },
         update: function update() {
+            height += 5 * sizeChange
+            element.style.height = height + "px"
         },
         get x() {
             return x
@@ -131,9 +158,11 @@ const gameManager = (function() {
     }
 }())
 
-setInterval(starManager.update, 1000 / 60)
-
 starManager.init()
+player.init()
+setInterval(starManager.update, 1000 / 60)
+setInterval(player.update, 1000 / 60)
+
 
 //Need a menu
 
