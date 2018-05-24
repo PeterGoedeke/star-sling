@@ -1,22 +1,32 @@
 const starManager = (function() {
     let stars = []
+    function pickSpawnLocation() {
+        let x = Math.floor(Math.random() * (window.innerWidth + 1))
+        let y = Math.floor(Math.random() * (window.innerHeight + 1))
+        return [x, y]
+    }
     function collidingWithPlayer(star) {
         var collidingX = (star.x < player.x + player.width && star.x + star.width > player.x)
         var collidingY = (star.y < player.y + player.width && star.y + star.width > player.y)
         return collidingX && collidingY
     }
     function shiftStar() {
+        stars.find((star) => !star.connected).shift(...pickSpawnLocation())
         stars.forEach((star) => star.connected = !star.connected)
     }
     function getUnconnectedStar() {
-        return stars.filter((star) => !star.connected)
+        return stars.find((star) => !star.connected)
     }
     return {
         init: function init() {
             stars.push(star(500, 500))
             stars.push(star(200, 200))
-            stars[0].connected = true
+            stars[1].connected = true
             stars.forEach((star) => star.init())
+            setTimeout(() => {
+                stars[0].x = 100
+                stars[0].y = 100
+            }, 1000)
         },
         registerStar: function registerStar(star) {
             stars.push(star)
@@ -24,8 +34,8 @@ const starManager = (function() {
         update: function update() {
             stars.forEach((star) => {
                 requestAnimationFrame(star.update)
-                if(collidingWithPlayer(getUnconnectedStar())) shiftStar()
             })
+            if(collidingWithPlayer(getUnconnectedStar())) shiftStar()
         }
 
     }
@@ -41,7 +51,7 @@ const star = (x, y) => {
     let rotation = 0
     let connected = false
     return {
-        x, y, connected,
+        x, y, connected, width, height,
         init: function init() {
             document.querySelector('.game').appendChild(element)
         },
@@ -54,14 +64,22 @@ const star = (x, y) => {
         },
         deselect: function deselect() {
             element.src = 'star.png'
+        },
+        shift: function shift(xNew, yNew) {
+            x = xNew
+            y = yNew
+            element.style.top = y + "px"
+            element.style.left = x + "px"
+            console.log('ayy lmao ')
         }
     }
 }
 
 const player = (function() {
-    let x, y
+    let [x, y] = [100, 100]
     let [width, height] = [25, 25]
     return {
+        width, height,
         update: function update() {
         },
         get x() {
