@@ -12,7 +12,10 @@ const starManager = (function() {
     }
     function shiftStar() {
         getConnectedStar().shift(...pickSpawnLocation())
-        stars.forEach((star) => star.connected = !star.connected)
+        stars.forEach((star) => {
+            star.connected = !star.connected
+            star.toggleSelect()
+        })
     }
     function getUnconnectedStar() {
         return stars.find((star) => !star.connected)
@@ -33,7 +36,7 @@ const starManager = (function() {
             })
             if(collidingWithPlayer(getUnconnectedStar())) {
                 shiftStar()
-                player.setHostStar(getConnectedStar())
+                player.changeHostStar(getConnectedStar())
             }
 
         },
@@ -59,11 +62,9 @@ const star = (x, y) => {
             element.style.transform = `rotate(${rotation}deg)`
             rotation += 5
         },
-        select: function select() {
-            element.src = 'selectedstar.png'
-        },
-        deselect: function deselect() {
-            element.src = 'star.png'
+        toggleSelect: function toggleSelect() {
+            if(this.connected) element.src = 'selectedstar.png'
+            else element.src = 'star.png'
         },
         shift: function shift(xNew, yNew) {
             this.x = xNew
@@ -104,9 +105,10 @@ const player = (function() {
             sizeChange = 0
         }
     }
-    function setHostStar(star) {
+    function changeHostStar(star) {
         x = star.x + 25
         y = star.y + 25
+        rotatingClockwise = !rotatingClockwise
     }
     return {
         width, height,
@@ -115,7 +117,7 @@ const player = (function() {
             document.addEventListener("keyup", changeSizeOff)
 
             document.querySelector('.game').appendChild(element)
-            setTimeout(() => setHostStar(starManager.requestConnectedStar()), 1000)
+            setTimeout(() => changeHostStar(starManager.requestConnectedStar()), 1000)
         },
         update: function update() {
             height += 5 * sizeChange
@@ -137,7 +139,7 @@ const player = (function() {
         get y() {
             return collisiony
         },
-        setHostStar
+        changeHostStar
     }
 })()
 
