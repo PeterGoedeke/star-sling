@@ -1,9 +1,48 @@
-var gameManager = (function() {
+const starManager = (function() {
+    let stars = []
+    return {
+        registerStar: function registerStar(star) {
+            stars.push(star)
+        },
+        update: function update() {
+            stars.forEach((star) => requestAnimationFrame(star.update))
+        }
+    }
+})()
+
+const star = (x, y) => {
+    let element = document.createElement('img')
+    element.src = 'star.png'
+    element.className = 'star'
+    element.style.top = y + "px"
+    element.style.left = x + "px"
+    let [width, height] = [25, 25]
+    let rotation = 0
+    return {
+        x, y,
+        init: function init() {
+            document.querySelector('.game').appendChild(element)
+            starManager.registerStar(this)
+        },
+        update: function update() {
+            element.style.transform = `rotate(${rotation}deg)`
+            rotation += 5
+        }
+    }
+}
+
+var myStar = star(500, 500)
+myStar.init()
+var myOtherStar = star(200, 200)
+myOtherStar.init()
+
+const gameManager = (function() {
     const gameDiv = document.querySelector('.game')
-    function appendButtonToGame(callback, classtoSet) {
+    function appendButtonToGame(callback, classtoSet, text) {
         let button = document.createElement('button')
         button.className = classtoSet
-        button.addEventListener('onclick', callback)
+        button.addEventListener('click', callback)
+        button.textContent = text
         gameDiv.appendChild(button)
     }
 
@@ -19,22 +58,25 @@ var gameManager = (function() {
     function setStateToMenu() {
         gameDiv.innerHTML = ''
         var startGame = () => {
-            console.log('game started')
+            setStateToGame()
         }
-        appendButtonToGame(startGame, 'startButton')
+        appendButtonToGame(startGame, 'startButton', 'Play')
     }
     function setStateToGame() {
+        gameDiv.innerHTML = ''
 
     }
     function setStateToRetry() {
+        var retryGame = () => {
 
+        }
     }
     return {
         setState
     }
 }())
 
-gameManager.setState('menu')
+setInterval(starManager.update, 1000 / 60)
 
 //Need a menu
 

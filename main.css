@@ -56,3 +56,15 @@ CSS starts here---------------------------------------------------------------
     left: 15vw;
     top: 30vh;
 }
+
+.star {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+
+}
+
+@keyframes starSpin {
+    from {transform: rotate(0deg)}
+    to {transform: rotate(360deg)}
+}
