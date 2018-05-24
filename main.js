@@ -109,6 +109,7 @@ const player = (function() {
         x = star.x + 25
         y = star.y + 25
         rotatingClockwise = !rotatingClockwise
+        rotation += 180
     }
     return {
         width, height,
@@ -204,7 +205,12 @@ requestAnimationFrame(function temporary() {
     testimage.update()
     requestAnimationFrame(temporary)
 })
-
+/*
+setInterval(() => {
+    player.update()
+    testimage.update()
+}, 100)
+*/
 
 //Need a menu
 
