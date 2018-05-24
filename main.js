@@ -11,11 +11,14 @@ const starManager = (function() {
         return collidingX && collidingY
     }
     function shiftStar() {
-        stars.find((star) => !star.connected).shift(...pickSpawnLocation())
+        getUnconnectedStar().shift(...pickSpawnLocation())
         stars.forEach((star) => star.connected = !star.connected)
     }
     function getUnconnectedStar() {
         return stars.find((star) => !star.connected)
+    }
+    function getConnectedStar() {
+        return stars.find((star) => star.connected)
     }
     return {
         init: function init() {
@@ -31,9 +34,13 @@ const starManager = (function() {
             stars.forEach((star) => {
                 requestAnimationFrame(star.update)
             })
-            if(collidingWithPlayer(getUnconnectedStar())) shiftStar()
-        }
+            if(collidingWithPlayer(getUnconnectedStar())) {
+                shiftStar()
+                player.setHostStar(getConnectedStar())
+            }
 
+        },
+        requestConnectedStar: getConnectedStar
     }
 })()
 
@@ -81,6 +88,7 @@ const player = (function() {
     element.style.top = y + "px"
     element.style.left = x + "px"
     let rotatingClockwise = true
+    let rotation = 0
     let sizeChange = 0
     function changeSizeOn(event) {
         if(event.which == 38) {
@@ -98,23 +106,37 @@ const player = (function() {
             sizeChange = 0
         }
     }
+    function setHostStar(star) {
+        x = star.x + 25
+        y = star.y + 25
+    }
     return {
         width, height,
         init: function init() {
+            document.addEventListener("keydown", changeSizeOn)
+            document.addEventListener("keyup", changeSizeOff)
+
             document.querySelector('.game').appendChild(element)
-            document.addEventListener("keydown", changeSizeOn);
-            document.addEventListener("keyup", changeSizeOff);
+            setTimeout(() => setHostStar(starManager.requestConnectedStar()), 1000)
         },
         update: function update() {
             height += 5 * sizeChange
+            if(height < 50) height = 50 
             element.style.height = height + "px"
+            if(rotatingClockwise) rotation += 5
+            else rotation -= 5
+            element.style.transformOrigin = 'top'
+            element.style.transform = `rotate(${rotation}deg)`
+            element.style.top = y + "px"
+            element.style.left = x + "px"
         },
         get x() {
             return x
         },
         get y() {
             return y
-        }
+        },
+        setHostStar
     }
 })()
 
@@ -161,8 +183,11 @@ const gameManager = (function() {
 starManager.init()
 player.init()
 setInterval(starManager.update, 1000 / 60)
-setInterval(player.update, 1000 / 60)
 
+requestAnimationFrame(function temporary() {
+    player.update()
+    requestAnimationFrame(temporary)
+})
 
 //Need a menu
 
