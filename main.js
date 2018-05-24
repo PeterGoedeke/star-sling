@@ -1,12 +1,33 @@
 const starManager = (function() {
     let stars = []
+    function collidingWithPlayer(star) {
+        var collidingX = (star.x < player.x + player.width && star.x + star.width > player.x)
+        var collidingY = (star.y < player.y + player.width && star.y + star.width > player.y)
+        return collidingX && collidingY
+    }
+    function shiftStar() {
+        stars.forEach((star) => star.connected = !star.connected)
+    }
+    function getUnconnectedStar() {
+        return stars.filter((star) => !star.connected)
+    }
     return {
+        init: function init() {
+            stars.push(star(500, 500))
+            stars.push(star(200, 200))
+            stars[0].connected = true
+            stars.forEach((star) => star.init())
+        },
         registerStar: function registerStar(star) {
             stars.push(star)
         },
         update: function update() {
-            stars.forEach((star) => requestAnimationFrame(star.update))
+            stars.forEach((star) => {
+                requestAnimationFrame(star.update)
+                if(collidingWithPlayer(getUnconnectedStar())) shiftStar()
+            })
         }
+
     }
 })()
 
@@ -18,11 +39,11 @@ const star = (x, y) => {
     element.style.left = x + "px"
     let [width, height] = [25, 25]
     let rotation = 0
+    let connected = false
     return {
-        x, y,
+        x, y, connected,
         init: function init() {
             document.querySelector('.game').appendChild(element)
-            starManager.registerStar(this)
         },
         update: function update() {
             element.style.transform = `rotate(${rotation}deg)`
@@ -38,9 +59,17 @@ const star = (x, y) => {
 }
 
 const player = (function() {
-    
+    let x, y
+    let [width, height] = [25, 25]
     return {
-
+        update: function update() {
+        },
+        get x() {
+            return x
+        },
+        get y() {
+            return y
+        }
     }
 })()
 
@@ -86,10 +115,7 @@ const gameManager = (function() {
 
 setInterval(starManager.update, 1000 / 60)
 
-var myStar = star(500, 500)
-myStar.init()
-var myOtherStar = star(200, 200)
-myOtherStar.init()
+starManager.init()
 
 //Need a menu
 
