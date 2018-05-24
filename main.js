@@ -11,7 +11,7 @@ const starManager = (function() {
         return collidingX && collidingY
     }
     function shiftStar() {
-        getUnconnectedStar().shift(...pickSpawnLocation())
+        getConnectedStar().shift(...pickSpawnLocation())
         stars.forEach((star) => star.connected = !star.connected)
     }
     function getUnconnectedStar() {
@@ -26,9 +26,6 @@ const starManager = (function() {
             stars.push(star(200, 200))
             stars[1].connected = true
             stars.forEach((star) => star.init())
-        },
-        registerStar: function registerStar(star) {
-            stars.push(star)
         },
         update: function update() {
             stars.forEach((star) => {
@@ -69,10 +66,10 @@ const star = (x, y) => {
             element.src = 'star.png'
         },
         shift: function shift(xNew, yNew) {
-            x = xNew
-            y = yNew
-            element.style.top = y + "px"
-            element.style.left = x + "px"
+            this.x = xNew
+            this.y = yNew
+            element.style.top = this.y + "px"
+            element.style.left = this.x + "px"
         }
     }
 }
@@ -82,6 +79,7 @@ const player = (function() {
     element.src = 'player.png'
     element.className = 'player'
     let [x, y] = [100, 100]
+    let collisionx, collisiony
     let [width, height] = [5, 75]
     element.style.width = width + "px"
     element.style.height = height + "px"
@@ -125,18 +123,33 @@ const player = (function() {
             element.style.height = height + "px"
             if(rotatingClockwise) rotation += 5
             else rotation -= 5
+            rotation = rotation % 360
             element.style.transformOrigin = 'top'
             element.style.transform = `rotate(${rotation}deg)`
             element.style.top = y + "px"
             element.style.left = x + "px"
+            collisionx = x + ((Math.sin(rotation / 180 * Math.PI)) * height * -1)
+            collisiony = y + height * (Math.cos(rotation / 180 * Math.PI))
         },
         get x() {
-            return x
+            return collisionx
         },
         get y() {
-            return y
+            return collisiony
         },
         setHostStar
+    }
+})()
+
+const testimage = (function() {
+    let element = document.createElement('div')
+    element.className = 'test'
+    document.querySelector('.game').appendChild(element)
+    return {
+        update: function update() {
+            element.style.top = player.y + "px"
+            element.style.left = player.x + "px"
+        }
     }
 })()
 
@@ -186,8 +199,10 @@ setInterval(starManager.update, 1000 / 60)
 
 requestAnimationFrame(function temporary() {
     player.update()
+    testimage.update()
     requestAnimationFrame(temporary)
 })
+
 
 //Need a menu
 

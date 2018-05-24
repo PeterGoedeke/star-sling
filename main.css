@@ -69,6 +69,14 @@ CSS starts here---------------------------------------------------------------
     height: 50px;
 }
 
+.test {
+    background-color: red;
+    width: 25px;
+    height: 25px;
+    border: solid black 1px;
+    position: absolute;
+}
+
 @keyframes starSpin {
     from {transform: rotate(0deg)}
     to {transform: rotate(360deg)}
