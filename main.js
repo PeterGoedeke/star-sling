@@ -1,8 +1,10 @@
 const starManager = (function() {
     let stars = []
-    function pickSpawnLocation() {
-        let x = Math.floor(Math.random() * (window.innerWidth + 1))
-        let y = Math.floor(Math.random() * (window.innerHeight + 1))
+    function pickSpawnLocation(shiftingStar, otherStar) {
+        let distanceFromOtherStar = 100
+        let angleFromOtherStar = Math.floor(Math.random() * 360 + 1)
+        let x = otherStar.x + ((Math.sin(angleFromOtherStar / 180 * Math.PI)) * distanceFromOtherStar * -1)
+        let y = otherStar.y + ((Math.cos(angleFromOtherStar / 180 * Math.PI)) * distanceFromOtherStar)
         return [x, y]
     }
     function collidingWithPlayer(star) {
@@ -11,7 +13,7 @@ const starManager = (function() {
         return collidingX && collidingY
     }
     function shiftStar() {
-        getConnectedStar().shift(...pickSpawnLocation())
+        getConnectedStar().shift(...pickSpawnLocation(getConnectedStar(), getUnconnectedStar()))
         stars.forEach((star) => {
             star.connected = !star.connected
             star.toggleSelect()
@@ -28,6 +30,7 @@ const starManager = (function() {
             stars.push(star(500, 500))
             stars.push(star(200, 200))
             stars[1].connected = true
+            stars[1].toggleSelect()
             stars.forEach((star) => star.init())
         },
         update: function update() {
@@ -118,7 +121,7 @@ const player = (function() {
             document.addEventListener("keyup", changeSizeOff)
 
             document.querySelector('.game').appendChild(element)
-            setTimeout(() => changeHostStar(starManager.requestConnectedStar()), 1000)
+            changeHostStar(starManager.requestConnectedStar())
         },
         update: function update() {
             height += 5 * sizeChange
@@ -218,14 +221,5 @@ setInterval(() => {
 
 //Need a death screen
 
-
-//Need a player
-//Need a star factory
-//Need a star generator
-
-
-//The player needs to be able to press the up and down arrows
-//The player needs to be able to turn around the stars
-//The player needs collision detection with the stars
-//The player needs to be able to notify the star generator when it connects with a new star
-//The star generator needs to pick the location of a new star
+//Star spawn location generation
+//Player death when they don't connect

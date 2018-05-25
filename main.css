@@ -67,6 +67,7 @@ CSS starts here---------------------------------------------------------------
     position: absolute;
     width: 5px;
     height: 50px;
+    z-index: -1;
 }
 
 .test {
@@ -75,9 +76,4 @@ CSS starts here---------------------------------------------------------------
     height: 25px;
     border: solid black 1px;
     position: absolute;
-}
-
-@keyframes starSpin {
-    from {transform: rotate(0deg)}
-    to {transform: rotate(360deg)}
 }
