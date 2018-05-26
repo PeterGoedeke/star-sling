@@ -117,20 +117,12 @@ const player = (function() {
     let sizeChangeSpeed = 5
     let sizeChangeDirection = 0
     function changeSizeOn(event) {
-        if(event.which == 38) {
-            sizeChangeDirection = 1
-        }
-        if(event.which == 40) {
-            sizeChangeDirection = -1
-        }
+        if(event.which == 38) sizeChangeDirection = 1
+        if(event.which == 40) sizeChangeDirection = -1
     }
-    function changeSizeOff() {
-        if(event.which == 38 && sizeChangeDirection != -1) {
-            sizeChangeDirection = 0
-        }
-        if(event.which == 40 && sizeChangeDirection != 1) {
-            sizeChangeDirection = 0
-        }
+    function changeSizeOff(event) {
+        if(event.which == 38 && sizeChangeDirection != -1) sizeChangeDirection = 0
+        if(event.which == 40 && sizeChangeDirection != 1) sizeChangeDirection = 0
     }
     function changeHostStar(star) {
         x = star.x + 25
@@ -157,8 +149,6 @@ const player = (function() {
             rotation = rotation % 360
             element.style.transformOrigin = 'top'
             element.style.transform = `rotate(${rotation}deg)`
-            element.style.top = y + "px"
-            element.style.left = x + "px"
             collisionx = x + ((Math.sin(rotation / 180 * Math.PI)) * height * -1)
             collisiony = y + height * (Math.cos(rotation / 180 * Math.PI))
         },

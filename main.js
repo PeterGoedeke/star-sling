@@ -1,16 +1,18 @@
 const star = function(x, y) {
     let element = document.createElement('img')
     element.src = 'star.png'
-    element.className = 'star'
+    element.className = 'test'
     element.style.top = y + 'px'
     element.style.left = x + 'px'
     document.querySelector('.game').appendChild(element)
 
+    let width = 50
+    let height = 50
     let rotation = 0
     let connected = false
     return {
         update() {
-            element.style.transform = `rotate(${rotation}deg)`
+            //element.style.transform = `rotate(${rotation}deg)`
             rotation += 5
         },
         toggleSelected() {
@@ -24,14 +26,34 @@ const star = function(x, y) {
         get connected() {
             return connected
         },
-        get x() {
-            return x
+        set connected(value) {
+            connected = value
         },
-        get y() {
-            return y
-        }
+        get x() { return x }, get y() { return y },
+        get width() { return width}, get height() { return height }
     }
 }
+
+const starManager = (function() {
+    stars = [star(100, 100), star(200, 200)]
+    stars[0].connected = true
+    return {
+        toggleSelectedStar() {
+            stars.forEach((star) => {
+                star.toggleSelected()
+            })
+        },
+        respawnStar() {
+            //stars.find((star) => !connected)
+        },
+        get connectedStar() {
+            return stars.find((star) => star.connected == true)
+        },
+        get unconnectedStar() {
+            return stars.find((star) => star.connected == false)
+        }
+    }
+})()
 
 const player = (function() {
     let element = document.createElement('img')
@@ -50,10 +72,10 @@ const player = (function() {
     let rotatingClockwise = true
     let rotationSpeed = 5
     let degreesPerSecond = rotationSpeed * 60
-    
+
     function checkCollision() {
-        var collidingX = (starManager.connectedStar.x < hitboxPositionx + hitboxWidthAndHeight && starManager.connectedStar.x + starManager.connectedStar.width > hitboxPositionx)
-        var collidingY = (starManager.connectedStar.y < hitboxPositiony + hitboxWidthAndHeight && starManager.connectedStar.y + starManager.connectedStar.width > hitboxPositiony)
+        var collidingX = (starManager.unconnectedStar.x < hitboxPositionx + hitboxWidthAndHeight && starManager.unconnectedStar.x + starManager.unconnectedStar.width > hitboxPositionx)
+        var collidingY = (starManager.unconnectedStar.y < hitboxPositiony + hitboxWidthAndHeight && starManager.unconnectedStar.y + starManager.unconnectedStar.width > hitboxPositiony)
         return collidingX && collidingY
     }
     function setPosition() {
@@ -102,24 +124,6 @@ const player = (function() {
             element.style.transform = `rotate(${currentRotation}deg)`            
             hitboxPositionx = basePositionx + (Math.sin(currentRotation / 180 * Math.PI)) * currentHeight * -1
             hitboxPositiony = basePositiony + (Math.cos(currentRotation / 180 * Math.PI)) * currentHeight
-        }
-    }
-})()
-
-const starManager = (function() {
-    stars = [star(100, 100), star(200, 200)]
-    stars[0].connected = true
-    return {
-        toggleSelectedStar() {
-            stars.forEach((star) => {
-                star.toggleSelected()
-            })
-        },
-        respawnStar() {
-            //stars.find((star) => !connected)
-        },
-        get connectedStar() {
-            return stars.find((star) => star.connected = true)
         }
     }
 })()
