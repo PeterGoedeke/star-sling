@@ -44,7 +44,15 @@ const starManager = (function() {
             })
         },
         respawnStar() {
-            //stars.find((star) => !connected)
+            let angleToNewStar = Math.floor(Math.random() * (360 - 90 + 1) + 90)
+            let degreesToRotate = player.currentRotation > 0 ? angleToNewStar - player.currentRotation : 360 - (angleToNewStar - Math.abs(player.currentRotation))
+            if(degreesToRotate < 0) degreesToRotate = 360 + degreesToRotate
+            console.log(degreesToRotate)
+
+            //Pick a random angle (0-360) to spawn the star at relative to the host star
+            //Work out the amount of degrees the player has to turn to reach the new star
+            //
+
         },
         get connectedStar() {
             return stars.find((star) => star.connected == true)
@@ -64,7 +72,7 @@ const player = (function() {
     let hitboxPositionx, hitboxPositiony
     let hitboxWidthAndHeight = 5
 
-    let currentHeight = 50
+    let currentHeight = 140
     let heightChangeSpeed = 5
     let heightChangeDirection = 0
 
@@ -111,6 +119,7 @@ const player = (function() {
             if(checkCollision()) {
                 starManager.toggleSelectedStar()
                 changeHostStar()
+                currentRotation = currentRotation % 360
                 starManager.respawnStar()
             }
             
@@ -124,7 +133,8 @@ const player = (function() {
             element.style.transform = `rotate(${currentRotation}deg)`            
             hitboxPositionx = basePositionx + (Math.sin(currentRotation / 180 * Math.PI)) * currentHeight * -1
             hitboxPositiony = basePositiony + (Math.cos(currentRotation / 180 * Math.PI)) * currentHeight
-        }
+        },
+        get currentRotation() { return currentRotation }
     }
 })()
 
