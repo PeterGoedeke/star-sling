@@ -12,7 +12,7 @@ const star = function(x, y) {
     let connected = false
     return {
         update() {
-            //element.style.transform = `rotate(${rotation}deg)`
+            element.style.transform = `rotate(${rotation}deg)`
             rotation += 5
         },
         toggleSelected() {
@@ -25,7 +25,6 @@ const star = function(x, y) {
             y = yNew
             element.style.top = y + 'px'
             element.style.left = x + 'px'
-            //shift star location
         },
         get connected() {
             return connected
@@ -48,25 +47,39 @@ const starManager = (function() {
             })
         },
         respawnStar() {
-            let angleToNewStar = Math.floor(Math.random() * (360 + 1))
-            let differenceBetweenAngles = Math.abs(player.currentRotation - angleToNewStar)
-            let degreesToRotate
-            if(player.rotatingClockwise) {
-                if(player.currentRotation < angleToNewStar) degreesToRotate = differenceBetweenAngles
-                else degreesToRotate = 360 - differenceBetweenAngles
-            }
-            else {
-                if(player.currentRotation < angleToNewStar) degreesToRotate = 360 - differenceBetweenAngles    
-                else degreesToRotate = differenceBetweenAngles
-            }
+            let x, y, degreesToRotate
+            do {
+                let angleToNewStar = Math.floor(Math.random() * (360 + 1))
+                let differenceBetweenAngles = Math.abs(player.currentRotation - angleToNewStar)
+                if(player.rotatingClockwise) {
+                    if(player.currentRotation < angleToNewStar) degreesToRotate = differenceBetweenAngles
+                    else degreesToRotate = 360 - differenceBetweenAngles
+                }
+                else {
+                    if(player.currentRotation < angleToNewStar) degreesToRotate = 360 - differenceBetweenAngles    
+                    else degreesToRotate = differenceBetweenAngles
+                }
+                
+                let minimumPossiblePlayerHeightByStar = (player.currentHeight - (degreesToRotate / player.degreesPerSecond) * player.heightChangePerSecond) + 50
+                let maximumPossiblePlayerHeightByStar = (player.currentHeight + (degreesToRotate / player.degreesPerSecond) * player.heightChangePerSecond) - 50
+                let distanceToNewStar = Math.floor(Math.abs(Math.random() - Math.random()) * (1 + maximumPossiblePlayerHeightByStar - minimumPossiblePlayerHeightByStar) + minimumPossiblePlayerHeightByStar);
             
-            let minimumPossiblePlayerHeightByStar = (player.currentHeight - (degreesToRotate / player.degreesPerSecond) * player.heightChangePerSecond) + 50
-            let maximumPossiblePlayerHeightByStar = (player.currentHeight + (degreesToRotate / player.degreesPerSecond) * player.heightChangePerSecond) - 50
-            let distanceToNewStar = Math.floor(Math.random() * (maximumPossiblePlayerHeightByStar - minimumPossiblePlayerHeightByStar + 1) + minimumPossiblePlayerHeightByStar)
+                x = this.connectedStar.x + ((Math.sin((360 - angleToNewStar) / 180 * Math.PI)) * distanceToNewStar)
+                y = this.connectedStar.y + ((Math.cos((360 - angleToNewStar) / 180 * Math.PI)) * distanceToNewStar)
+                console.log(angleToNewStar, player.currentRotation, degreesToRotate)
+            } while(x < 50 || x > window.innerWidth - 50 || y < 50 || y > window.innerHeight - 50)
+            this.unconnectedStar.shiftLocation(x, y)
 
-            let x = this.connectedStar.x + ((Math.sin(angleToNewStar / 180 * Math.PI)) * distanceToNewStar * -1)
-            let y = this.connectedStar.y + ((Math.cos(angleToNewStar / 180 * Math.PI)) * distanceToNewStar)
-            
+            for(let i = 0; i < 360; i ++) {
+                if(i == 270) {
+                    let element = document.createElement('div')
+                    element.className = 'test'
+                    element.style.top = this.connectedStar.y + 25 + ((Math.cos((360 - i) / 180 * Math.PI)) * 200) + 'px'
+                    element.style.left = this.connectedStar.x + 25 + ((Math.sin((360 -i) / 180 * Math.PI)) * 200) + 'px'
+                    document.querySelector('.game').appendChild(element)
+                }
+            }
+
             /*
             let element = document.createElement('div')
             element.className = 'test'
@@ -74,6 +87,7 @@ const starManager = (function() {
             element.style.left = x + 'px'
             document.querySelector('.game').appendChild(element)
             */
+           //stars are spawning on top of the host star
         },
         get connectedStar() {
             return stars.find((star) => star.connected == true)
