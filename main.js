@@ -1,7 +1,7 @@
 const star = function(x, y) {
     let element = document.createElement('img')
     element.src = 'star.png'
-    element.className = 'test'
+    element.className = 'star'
     element.style.top = y + 'px'
     element.style.left = x + 'px'
     document.querySelector('.game').appendChild(element)
@@ -20,7 +20,11 @@ const star = function(x, y) {
             if(this.connected) element.src = 'selectedstar.png'
             else element.src = 'star.png'
         },
-        shiftLocation() {
+        shiftLocation(xNew, yNew) {
+            x = xNew
+            y = yNew
+            element.style.top = y + 'px'
+            element.style.left = x + 'px'
             //shift star location
         },
         get connected() {
@@ -35,7 +39,7 @@ const star = function(x, y) {
 }
 
 const starManager = (function() {
-    stars = [star(100, 100), star(200, 200)]
+    stars = [star(300, 300), star(400, 400)]
     stars[0].connected = true
     return {
         toggleSelectedStar() {
@@ -44,11 +48,32 @@ const starManager = (function() {
             })
         },
         respawnStar() {
-            let angleToNewStar = Math.floor(Math.random() * (360 - 90 + 1) + 90)
-            let degreesToRotate = player.currentRotation > 0 ? angleToNewStar - player.currentRotation : 360 - (angleToNewStar - Math.abs(player.currentRotation))
-            if(degreesToRotate < 0) degreesToRotate = 360 + degreesToRotate
-            console.log(degreesToRotate)
-
+            let angleToNewStar = Math.floor(Math.random() * (360 + 1))
+            let differenceBetweenAngles = Math.abs(player.currentRotation - angleToNewStar)
+            let degreesToRotate
+            if(player.rotatingClockwise) {
+                if(player.currentRotation < angleToNewStar) degreesToRotate = differenceBetweenAngles
+                else degreesToRotate = 360 - differenceBetweenAngles
+            }
+            else {
+                if(player.currentRotation < angleToNewStar) degreesToRotate = 360 - differenceBetweenAngles    
+                else degreesToRotate = differenceBetweenAngles
+            }
+            console.log('------')
+            console.log('current rotation', player.currentRotation)
+            console.log('angle to new star', angleToNewStar)
+            console.log('degrees to rotate', degreesToRotate)
+            console.log(player.currentRotation < 0 ? 'clockwise' : 'anticlockwise')
+            
+            let x = this.connectedStar.x + ((Math.sin(angleToNewStar / 180 * Math.PI)) * 200 * -1)
+            let y = this.connectedStar.y + ((Math.cos(angleToNewStar / 180 * Math.PI)) * 200)
+            let element = document.createElement('div')
+            element.className = 'test'
+            element.style.top = y + 'px'
+            element.style.left = x + 'px'
+            document.querySelector('.game').appendChild(element)
+            //let x = otherStar.x + ((Math.sin(angleFromOtherStar / 180 * Math.PI)) * distanceFromOtherStar * -1)
+            //let y = otherStar.y + ((Math.cos(angleFromOtherStar / 180 * Math.PI)) * distanceFromOtherStar)
             //Pick a random angle (0-360) to spawn the star at relative to the host star
             //Work out the amount of degrees the player has to turn to reach the new star
             //
@@ -77,7 +102,7 @@ const player = (function() {
     let heightChangeDirection = 0
 
     let currentRotation = 0
-    let rotatingClockwise = true
+    let rotatingClockwise = false
     let rotationSpeed = 5
     let degreesPerSecond = rotationSpeed * 60
 
@@ -121,8 +146,10 @@ const player = (function() {
                 changeHostStar()
                 currentRotation = currentRotation % 360
                 starManager.respawnStar()
+                rotationSpeed = 0
+                currentHeight = 50
             }
-            
+
             currentHeight += heightChangeSpeed * heightChangeDirection
             if(currentHeight < 50) currentHeight = 50
             element.style.height = currentHeight + 'px'
@@ -130,11 +157,12 @@ const player = (function() {
             if(rotatingClockwise) currentRotation += rotationSpeed
             else currentRotation -= rotationSpeed
             currentRotation = currentRotation % 360
+            if(currentRotation == -5) currentRotation = 355
             element.style.transform = `rotate(${currentRotation}deg)`            
             hitboxPositionx = basePositionx + (Math.sin(currentRotation / 180 * Math.PI)) * currentHeight * -1
             hitboxPositiony = basePositiony + (Math.cos(currentRotation / 180 * Math.PI)) * currentHeight
         },
-        get currentRotation() { return currentRotation }
+        get currentRotation() { return currentRotation }, get rotatingClockwise() { return rotatingClockwise }
     }
 })()
 
