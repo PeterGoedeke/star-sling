@@ -59,25 +59,21 @@ const starManager = (function() {
                 if(player.currentRotation < angleToNewStar) degreesToRotate = 360 - differenceBetweenAngles    
                 else degreesToRotate = differenceBetweenAngles
             }
-            console.log('------')
-            console.log('current rotation', player.currentRotation)
-            console.log('angle to new star', angleToNewStar)
-            console.log('degrees to rotate', degreesToRotate)
-            console.log(player.currentRotation < 0 ? 'clockwise' : 'anticlockwise')
             
-            let x = this.connectedStar.x + ((Math.sin(angleToNewStar / 180 * Math.PI)) * 200 * -1)
-            let y = this.connectedStar.y + ((Math.cos(angleToNewStar / 180 * Math.PI)) * 200)
+            let minimumPossiblePlayerHeightByStar = (player.currentHeight - (degreesToRotate / player.degreesPerSecond) * player.heightChangePerSecond) + 50
+            let maximumPossiblePlayerHeightByStar = (player.currentHeight + (degreesToRotate / player.degreesPerSecond) * player.heightChangePerSecond) - 50
+            let distanceToNewStar = Math.floor(Math.random() * (maximumPossiblePlayerHeightByStar - minimumPossiblePlayerHeightByStar + 1) + minimumPossiblePlayerHeightByStar)
+
+            let x = this.connectedStar.x + ((Math.sin(angleToNewStar / 180 * Math.PI)) * distanceToNewStar * -1)
+            let y = this.connectedStar.y + ((Math.cos(angleToNewStar / 180 * Math.PI)) * distanceToNewStar)
+            
+            /*
             let element = document.createElement('div')
             element.className = 'test'
             element.style.top = y + 'px'
             element.style.left = x + 'px'
             document.querySelector('.game').appendChild(element)
-            //let x = otherStar.x + ((Math.sin(angleFromOtherStar / 180 * Math.PI)) * distanceFromOtherStar * -1)
-            //let y = otherStar.y + ((Math.cos(angleFromOtherStar / 180 * Math.PI)) * distanceFromOtherStar)
-            //Pick a random angle (0-360) to spawn the star at relative to the host star
-            //Work out the amount of degrees the player has to turn to reach the new star
-            //
-
+            */
         },
         get connectedStar() {
             return stars.find((star) => star.connected == true)
@@ -100,9 +96,10 @@ const player = (function() {
     let currentHeight = 140
     let heightChangeSpeed = 5
     let heightChangeDirection = 0
+    let heightChangePerSecond = heightChangeSpeed * 60
 
     let currentRotation = 0
-    let rotatingClockwise = false
+    let rotatingClockwise = true
     let rotationSpeed = 5
     let degreesPerSecond = rotationSpeed * 60
 
@@ -146,8 +143,8 @@ const player = (function() {
                 changeHostStar()
                 currentRotation = currentRotation % 360
                 starManager.respawnStar()
-                rotationSpeed = 0
-                currentHeight = 50
+                //rotationSpeed = 0
+                //currentHeight = 50
             }
 
             currentHeight += heightChangeSpeed * heightChangeDirection
@@ -162,7 +159,9 @@ const player = (function() {
             hitboxPositionx = basePositionx + (Math.sin(currentRotation / 180 * Math.PI)) * currentHeight * -1
             hitboxPositiony = basePositiony + (Math.cos(currentRotation / 180 * Math.PI)) * currentHeight
         },
-        get currentRotation() { return currentRotation }, get rotatingClockwise() { return rotatingClockwise }
+        get currentRotation() { return currentRotation }, get currentHeight() { return currentHeight },
+        get rotatingClockwise() { return rotatingClockwise },
+        get degreesPerSecond() { return degreesPerSecond }, get heightChangePerSecond() { return heightChangePerSecond }
     }
 })()
 
